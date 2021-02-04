@@ -1,0 +1,13 @@
+WITH fisrt_purchase AS (
+    SELECT customer_id, DATE(MIN(invoice_date)) AS cohort_day
+    FROM data.sales 
+    GROUP BY customer_id
+)
+
+SELECT cohort_group, cohort_index, COUNT(DISTINCT customer_id) AS customer_count 
+FROM (
+    SELECT s.*, f.cohort_day, DATE_DIFF(DATE(invoice_date), cohort_day, MONTH) AS cohort_index,DATE_TRUNC(cohort_day, MONTH) AS cohort_group
+    FROM data.sales s LEFT JOIN fisrt_purchase f
+    ON s.customer_id = f.customer_id
+)
+GROUP BY cohort_group, cohort_index
